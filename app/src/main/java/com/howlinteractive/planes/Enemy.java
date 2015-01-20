@@ -5,15 +5,15 @@ public class Enemy extends Object {
     @Override
     Type type() { return Type.ENEMY; }
 
-    static final float SPEED = 3;
+    static final float SPEED = 10;
 
     Enemy(float x, float y) {
-        super(x, y, SPEED, new Sprite("enemy.png"));
+        super(x, y, SPEED, new Sprite(R.drawable.enemy));
     }
 
     @Override
     void update() {
-        setVel((float)Math.atan2(Room.p.y - y, Room.p.x - x), true);
+        setVel((float)Math.PI / 2, true);//(float)Math.atan2(Room.p.y - y, Room.p.x - x), true);
         super.update();
     }
 

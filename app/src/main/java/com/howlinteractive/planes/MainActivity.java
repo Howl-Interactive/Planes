@@ -1,33 +1,39 @@
 package com.howlinteractive.planes;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
-    static Display display;
+    private static Display display;
 
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         display = getWindowManager().getDefaultDisplay();
         Game.width = display.getWidth();
         Game.height = display.getHeight();
         //Tile.setSize();
         //loadSavedPreferences();
-        setContentView(new Game(this, this));
+        setContentView(new Game(this, this, this));
     }
 
     @Override
@@ -62,5 +68,9 @@ public class MainActivity extends ActionBarActivity {
         Editor editor = sharedPreferences.edit();
         editor.putInt(key, value);
         editor.commit();
+    }
+
+    Bitmap loadBitmap(int file) {
+        return BitmapFactory.decodeResource(getResources(), file);
     }
 }

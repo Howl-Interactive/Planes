@@ -35,6 +35,6 @@ public class GameLoopThread extends Thread {
     }
 
     void update() {
-        Game.room.update();
+        Game.update();
     }
 }

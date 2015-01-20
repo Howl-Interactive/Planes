@@ -8,17 +8,18 @@ public class InputPanel {
 
     enum INPUT_TYPE { MOVE, SHOOT }
 
-    private static float lx = 50, ly = 50, rx = Game.width - 50, ry = 50, ls = 50, rs = 50;
+    private static float lx = 200, ly = Game.height - 200, rx = Game.width - 200, ry = Game.height - 200;
+    private static int ls = 200, rs = 200, range = 350;
 
     private static ControlStick leftStick, rightStick;
 
-    static void create(INPUT_TYPE lInputType, INPUT_TYPE rInputType, String lStick, String rStick) {
-        leftStick = new ControlStick(lx, ly, ls, lInputType, lStick);
-        rightStick = new ControlStick(rx, ry, rs, rInputType, rStick);
+    static void create(INPUT_TYPE lInputType, INPUT_TYPE rInputType, int lStick, int rStick) {
+        leftStick = new ControlStick(lx, ly, ls, range, lInputType, lStick);
+        rightStick = new ControlStick(rx, ry, rs, range, rInputType, rStick);
     }
 
     static void create() {
-        create(INPUT_TYPE.MOVE, INPUT_TYPE.SHOOT, "controlstick.png", "controlstick.png");
+        create(INPUT_TYPE.MOVE, INPUT_TYPE.SHOOT, R.drawable.controlstick, R.drawable.controlstick);
     }
 
     static void draw(Canvas canvas) {
@@ -26,44 +27,33 @@ public class InputPanel {
         rightStick.draw(canvas);
     }
 
-    static void onTouch(MotionEvent event) {
-        leftStick.onTouch(event);
-        rightStick.onTouch(event);
+    static void onTouch(float[] coords) {
+        leftStick.onTouch(coords);
+        rightStick.onTouch(coords);
     }
 
-    private static class ControlStick {
+    private static class ControlStick extends Object {
+
+        @Override
+        Type type() { return Type.NONE; }
 
         INPUT_TYPE inputType;
 
-        float x, y, s;
-        private RectF rect;
-        RectF getRect() {
-            if(rect == null) {
-                rect = new RectF(x - s / 2, y - s / 2, x + s / 2, y + s / 2);
-            }
-            rect.left = x - s / 2;
-            rect.right = x + s / 2;
-            rect.top = y - s / 2;
-            rect.bottom = y + s / 2;
-            return rect;
-        }
-        Sprite sprite;
+        int range;
 
-        ControlStick(float x, float y, float s, INPUT_TYPE inputType, String texture) {
-            this.x = x;
-            this.y = y;
-            this.s = s;
+        ControlStick(float x, float y, int s, int range, INPUT_TYPE inputType, int texture) {
+            super(x, y, s, s, new Sprite(texture));
+            this.range = range;
             this.inputType = inputType;
-            this.sprite = new Sprite(texture);
         }
 
         void draw(Canvas canvas) {
-            sprite.draw(getRect(), canvas);
+            sprite.draw(getRect(), canvas, true);
         }
 
-        void onTouch(MotionEvent event) {
-            if(Math.sqrt(Math.pow(event.getX() - x, 2) + Math.pow(event.getY() - y, 2)) < s / 2) {
-                float angle = (float)Math.atan2(event.getY() - y, event.getX() - x);
+        void onTouch(float[] coords) {
+            if(Math.sqrt(Math.pow(coords[0] - x, 2) + Math.pow(coords[1] - y, 2)) < range) {
+                float angle = (float)Math.atan2(coords[1] - y, coords[0] - x);
                 switch(inputType) {
                     case MOVE:
                         Room.p.setVel(angle, true);

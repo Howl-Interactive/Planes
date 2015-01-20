@@ -8,12 +8,14 @@ import java.util.Collections;
 
 public class Room {
 
-    static float playerStartX = Game.width / 2, playerStartY = 200;
+    static float playerStartX = Game.width / 2, playerStartY = Game.height - 200;
     static Player p;
 
     ArrayList<Object> objs;
 
     float scrollX, scrollY;
+
+    private int waveCounter = 100, waveTime = 100;
 
     Room(float scrollX, float scrollY) {
         this.scrollX = scrollX;
@@ -21,7 +23,8 @@ public class Room {
         objs = new ArrayList<>();
         if(p == null) { p = new Player(playerStartX, playerStartY); }
         objs.add(p);
-        initializeEmptyRoom();
+        objs.add(new Background(Game.height / 2));
+        objs.add(new Background(-Game.height / 2));
     }
 
     Room() {
@@ -34,13 +37,20 @@ public class Room {
         p.y = playerStartY;
         p.setDir(0, true);
         objs.add(p);
-        initializeEmptyRoom();
+        objs.add(new Background(Game.height * 3 / 2));
+        objs.add(new Background(Game.height / 2));
+        objs.add(new Background(-Game.height / 2));
     }
 
     void update() {
-        createObjects();
+        if(waveCounter >= waveTime) {
+            createObjects();
+            waveCounter = 0;
+        }
+        else {
+            waveCounter++;
+        }
         for(Object obj : objs) {
-            if(obj.y < -Game.height - obj.h / 2) { obj.isAlive = false; }
             if(obj.isAlive) { obj.update(); }
         }
         for(int i = objs.size() - 1; i >= 0; i--) {
@@ -71,14 +81,7 @@ public class Room {
     }
 
     void createObjects() {
-        ArrayList<Object> section = LevelCreator.createSection(true);
-        for(Object obj : section) {
-            objs.add(obj);
-        }
-    }
-
-    void initializeEmptyRoom() {
-        ArrayList<Object> section = LevelCreator.initializeEmptyRoom();
+        ArrayList<Object> section = LevelCreator.loadSection();
         for(Object obj : section) {
             objs.add(obj);
         }
@@ -88,17 +91,17 @@ public class Room {
         Collections.sort(objs);
     }
 
-    void onTouch(MotionEvent event) {
-        if(event.getX() < p.x - p.speed) {
+    void onTouch(float[] coords) {
+        if(coords[0] < p.x - p.speed) {
             p.velX = -p.speed;
         }
-        else if(event.getX() > p.x + p.speed) {
+        else if(coords[0] > p.x + p.speed) {
             p.velX = p.speed;
         }
-        if(event.getY() < p.y - p.speed) {
+        if(coords[1] < p.y - p.speed) {
             p.velY = -p.speed;
         }
-        else if(event.getY() > p.y + p.speed) {
+        else if(coords[1] > p.y + p.speed) {
             p.velY = p.speed;
         }
         p.adjustRotation();

@@ -6,6 +6,6 @@ public class Wall extends Object {
     Type type() { return Type.SOLID; }
 
     Wall(float x, float y, int w, int h) {
-        super(x, y, w, h, new Sprite("wall.png"));
+        super(x, y, w, h, new Sprite(R.drawable.wall));
     }
 }

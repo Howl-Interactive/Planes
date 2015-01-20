@@ -1,12 +1,18 @@
 package com.howlinteractive.planes;
 
+import android.util.Log;
+
 public class Player extends Object {
 
     @Override
     Type type() { return Type.PLAYER; }
 
     Player(float x, float y) {
-        super(x, y, new Sprite("player.png"));
+        super(x, y, new Sprite(R.drawable.player));
+        boundX1 = 0;
+        boundX2 = Game.width;
+        boundY1 += Game.height / 2;
+        boundY2 -= Game.height / 2;
     }
 
     @Override
@@ -18,12 +24,18 @@ public class Player extends Object {
     }
 
     int cooldown = 0;
-    final int FIRE_RATE = 20;
+    final int FIRE_RATE = 5;
     void shoot(float angle) {
         if(cooldown == 0) {
             Game.room.objs.add(new Bullet(x, y, angle));
             cooldown = FIRE_RATE;
         }
+    }
+
+    @Override
+    void outOfBounds() {
+        //TODO: return to battlefield
+        Log.i("OOB", x < 0 ? "lx" : x > Game.width ? "rx" : "y");
     }
 
     @Override

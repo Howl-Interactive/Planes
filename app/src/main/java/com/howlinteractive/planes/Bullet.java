@@ -5,7 +5,7 @@ public class Bullet extends Object {
     Type type() { return Type.FRIENDLY; }
 
     Bullet(float x, float y, float angle) {
-        super(x, y, new Sprite("bullet.png"));
+        super(x, y, new Sprite(R.drawable.bullet));
         setVel(angle, true);
     }
 

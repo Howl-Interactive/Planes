@@ -7,28 +7,30 @@ import java.util.ArrayList;
 
 public abstract class Object implements Comparable<Object> {
 
-enum Type { NONE, SOLID, PLAYER, ENEMY, FRIENDLY }
+    enum Type { NONE, SOLID, PLAYER, ENEMY, FRIENDLY }
     abstract Type type();
 
-Sprite sprite;
-float x, y, velX, velY, accX, accY;
-int w, h;
-private RectF rect;
-RectF getRect() {
-    if(rect == null) {
-        rect = new RectF(x - w / 2, y - h / 2, x + w / 2, y + h / 2);
+    Sprite sprite;
+    float x, y, velX, velY, accX, accY;
+    int w, h;
+    private RectF rect;
+    RectF getRect() {
+        if(rect == null) {
+            rect = new RectF(x - w / 2, y - h / 2, x + w / 2, y + h / 2);
+        }
+        rect.left = x - w / 2;
+        rect.right = x + w / 2;
+        rect.top = y - h / 2;
+        rect.bottom = y + h / 2;
+        return rect;
     }
-    rect.left = x - w / 2;
-    rect.right = x + w / 2;
-    rect.top = y - h / 2;
-    rect.bottom = y + h / 2;
-    return rect;
-}
 
-final static int DEFAULT_SPEED = 5;
-float speed;
+    final static int DEFAULT_SPEED = 15;
+    float speed;
 
-boolean isAlive = true;
+    boolean isAlive = true;
+
+    int boundX1 = -3000, boundX2 = 3000, boundY1 = -10000, boundY2 = 10000;
 
     Object(float x, float y, int w, int h, float speed, Sprite sprite) {
         this.x = x;
@@ -54,6 +56,7 @@ boolean isAlive = true;
     void update() {
         accelerate();
         move();
+        checkBounds();
     }
 
     void accelerate() {
@@ -69,6 +72,14 @@ boolean isAlive = true;
             handleCollisions();
         }
     }
+
+    void checkBounds() {
+        if(x < boundX1 || x > boundX2 || y < boundY1 || y > boundY2) {
+            outOfBounds();
+        }
+    }
+
+    void outOfBounds() { isAlive = false; }
 
     void takeDamage() {
         isAlive = false;
