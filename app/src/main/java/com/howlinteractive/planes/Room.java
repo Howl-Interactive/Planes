@@ -1,21 +1,25 @@
 package com.howlinteractive.planes;
 
 import android.graphics.Canvas;
-import android.view.MotionEvent;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Room {
 
-    static float playerStartX = Game.width / 2, playerStartY = Game.height - 200;
+    static float playerStartX = Game.width / 2, playerStartY = 0, shipStartX = Game.width / 2, shipStartY = playerStartY - Game.height / 4;
     static Player p;
+    static Ship s;
 
     ArrayList<Object> objs;
 
     float scrollX, scrollY;
 
-    private int waveCounter = 100, waveTime = 100;
+    private int waveTime = 50, waveCounter = waveTime;
+
+    Paint black = new Paint();
 
     Room(float scrollX, float scrollY) {
         this.scrollX = scrollX;
@@ -23,8 +27,12 @@ public class Room {
         objs = new ArrayList<>();
         if(p == null) { p = new Player(playerStartX, playerStartY); }
         objs.add(p);
+        s = new Ship(shipStartX, shipStartY);
+        objs.add(s);
+        objs.add(new Background(Game.height * 3 / 2));
         objs.add(new Background(Game.height / 2));
         objs.add(new Background(-Game.height / 2));
+        black.setColor(Color.BLACK);
     }
 
     Room() {
@@ -37,6 +45,8 @@ public class Room {
         p.y = playerStartY;
         p.setDir(0, true);
         objs.add(p);
+        s = new Ship(shipStartX, shipStartY);
+        objs.add(s);
         objs.add(new Background(Game.height * 3 / 2));
         objs.add(new Background(Game.height / 2));
         objs.add(new Background(-Game.height / 2));
@@ -50,8 +60,8 @@ public class Room {
         else {
             waveCounter++;
         }
-        for(Object obj : objs) {
-            if(obj.isAlive) { obj.update(); }
+        for(int i = objs.size() - 1; i >= 0; i--) {
+            if(objs.get(i).isAlive) { objs.get(i).update(); }
         }
         for(int i = objs.size() - 1; i >= 0; i--) {
             if(!objs.get(i).isAlive) { objs.remove(i); }
@@ -62,7 +72,7 @@ public class Room {
     void scroll() {
         p.negateScroll();
         for(Object obj : objs) {
-            if(obj instanceof Bullet) {
+            if(obj instanceof Projectile) {
                 obj.negateScroll();
             }
         }
@@ -78,13 +88,17 @@ public class Room {
         for(Object obj : objs) {
             obj.draw(canvas);
         }
+        canvas.drawRect(0, p.boundY1 - 10 - Game.camera.getY() + Game.height / 2, Game.width, p.boundY1 - Game.camera.getY() + Game.height / 2, black);
+        canvas.drawRect(0, p.boundY2 - Game.camera.getY() + Game.height / 2, Game.width, p.boundY2 + 10 - Game.camera.getY() + Game.height / 2, black);
     }
 
+    boolean fromBottom = false;
     void createObjects() {
-        ArrayList<Object> section = LevelCreator.loadSection();
+        ArrayList<Object> section = LevelCreator.loadSection(fromBottom);
         for(Object obj : section) {
             objs.add(obj);
         }
+        fromBottom = !fromBottom;
     }
 
     void rearrangeByDepth() {
@@ -92,16 +106,14 @@ public class Room {
     }
 
     void onTouch(float[] coords) {
-        if(coords[0] < p.x - p.speed) {
+        if (coords[0] < p.x - p.speed) {
             p.velX = -p.speed;
-        }
-        else if(coords[0] > p.x + p.speed) {
+        } else if (coords[0] > p.x + p.speed) {
             p.velX = p.speed;
         }
-        if(coords[1] < p.y - p.speed) {
+        if (coords[1] < p.y - p.speed) {
             p.velY = -p.speed;
-        }
-        else if(coords[1] > p.y + p.speed) {
+        } else if (coords[1] > p.y + p.speed) {
             p.velY = p.speed;
         }
         p.adjustRotation();

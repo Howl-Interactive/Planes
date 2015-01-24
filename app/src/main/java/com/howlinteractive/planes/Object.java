@@ -2,12 +2,13 @@ package com.howlinteractive.planes;
 
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.util.Log;
 
 import java.util.ArrayList;
 
 public abstract class Object implements Comparable<Object> {
 
-    enum Type { NONE, SOLID, PLAYER, ENEMY, FRIENDLY }
+    enum Type { NONE, SOLID, PLAYER, ENEMY, SHIP, BOMB, FRIENDLY }
     abstract Type type();
 
     Sprite sprite;
@@ -30,7 +31,11 @@ public abstract class Object implements Comparable<Object> {
 
     boolean isAlive = true;
 
-    int boundX1 = -3000, boundX2 = 3000, boundY1 = -10000, boundY2 = 10000;
+    int boundX1 = -3000, boundX2 = 3000, boundY1 = -4000, boundY2 = 4000;
+
+    float targetDir = (float)Math.PI / 2, turnSpeed = .06f;
+    final int IMAGE_RESET_FRAMES = 30;
+    int imageResetCounter = IMAGE_RESET_FRAMES;
 
     Object(float x, float y, int w, int h, float speed, Sprite sprite) {
         this.x = x;
@@ -55,6 +60,7 @@ public abstract class Object implements Comparable<Object> {
 
     void update() {
         accelerate();
+        setFlightDir(targetDir);
         move();
         checkBounds();
     }
@@ -73,10 +79,51 @@ public abstract class Object implements Comparable<Object> {
         }
     }
 
-    void checkBounds() {
+    void setFlightDir(float angle) {
+        float currentAngle = getDir();
+        float diff = currentAngle - angle;
+        float change = 0;
+        if(Math.abs(diff) >= 5 * turnSpeed) {
+            if(currentAngle > 0) {
+                if(diff > 0 && diff < Math.PI) {
+                    change = -turnSpeed;
+                }
+                else {
+                    change = turnSpeed;
+                }
+            }
+            else {
+                if(diff < 0 && diff > -Math.PI) {
+                    change = turnSpeed;
+                }
+                else {
+                    change = -turnSpeed;
+                }
+            }
+            setDir(currentAngle + change, true);
+        }
+        if(sprite.numTextures() >= 3) {
+            int imageIndex = (change == 0 ? 0 : change < 0 ? 1 : 2);
+            if (imageIndex == 0) {
+                if (imageResetCounter == 0) {
+                    sprite.setTexture(0);
+                    imageResetCounter = IMAGE_RESET_FRAMES;
+                }
+            } else {
+                sprite.setTexture(imageIndex);
+            }
+            if (imageResetCounter > 0) {
+                imageResetCounter--;
+            }
+        }
+    }
+
+    boolean checkBounds() {
         if(x < boundX1 || x > boundX2 || y < boundY1 || y > boundY2) {
             outOfBounds();
+            return true;
         }
+        return false;
     }
 
     void outOfBounds() { isAlive = false; }

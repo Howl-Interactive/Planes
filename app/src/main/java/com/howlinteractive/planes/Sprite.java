@@ -2,6 +2,7 @@ package com.howlinteractive.planes;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.RectF;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class Sprite {
     private int curTexture;
     private Bitmap texture;
     public void setTexture(int newTexture) { curTexture = newTexture; texture = textures.get(curTexture); }
+    public int numTextures() { return textures.size(); }
 
     int width() { return texture.getWidth(); }
     int height() { return texture.getHeight(); }
@@ -45,7 +47,10 @@ public class Sprite {
     }
 
     void draw(RectF rect, Canvas canvas, boolean fixed) {
+        canvas.save();
+        canvas.rotate((float)Math.toDegrees(Math.PI - rotation), fixed ? rect.centerX() : Game.camera.getRect(rect).centerX(), fixed ? rect.centerY() : Game.camera.getRect(rect).centerY());
         canvas.drawBitmap(texture, null, fixed ? rect : Game.camera.getRect(rect), null);
+        canvas.restore();
         if(cycling) { setTexture((curTexture + 1) % textures.size()); }
     }
 

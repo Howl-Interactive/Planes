@@ -11,7 +11,8 @@ public class LevelCreator {
     static final int EMPTY = 0;
     static final int PATH = 1;
     static final int WALL = 2;
-    static final int ENEMY = 3;
+    static final int FIGHTER = 3;
+    static final int BOMBER = 4;
 
     static final String EMPTY_SECTION =
         "000000000" +
@@ -25,7 +26,7 @@ public class LevelCreator {
     ;
 
     static String[] sections = {
-        "330000033" +
+        "340000043" +
         "000000000" +
         "000000000" +
         "000000000" +
@@ -37,17 +38,23 @@ public class LevelCreator {
 
     static int scrollCounter = HEIGHT;
 
-    static ArrayList<Object> loadSection() {
+    static ArrayList<Object> loadSection(boolean fromBottom) {
         ArrayList<Object> objs = new ArrayList<>();
         String section = sections[Game.rand.nextInt(sections.length)];
+        if(fromBottom) {
+            section = new StringBuilder(section).reverse().toString();
+        }
         for(int row = 0; row < ROWS; row++) {
             for(int col = 0; col < COLS; col++) {
                 switch(Integer.parseInt("" + section.charAt(row * COLS + col))) {
                     case WALL:
-                        objs.add(new Wall(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE - HEIGHT + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE));
+                        objs.add(new Wall(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE));
                         break;
-                    case ENEMY:
-                        objs.add(new Enemy(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE - HEIGHT + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2));
+                    case FIGHTER:
+                        objs.add(new Fighter(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2));
+                        break;
+                    case BOMBER:
+                        objs.add(new Bomber(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2));
                         break;
                 }
             }
