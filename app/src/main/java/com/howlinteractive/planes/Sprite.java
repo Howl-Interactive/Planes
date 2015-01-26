@@ -46,16 +46,24 @@ public class Sprite {
         this(new int[] { file }, false, 0);
     }
 
-    void draw(RectF rect, Canvas canvas, boolean fixed) {
+    void draw(RectF rect, Canvas canvas, boolean fixed, boolean rotateFromPoint, float rotateX, float rotateY) {
         canvas.save();
-        canvas.rotate((float)Math.toDegrees(Math.PI - rotation), fixed ? rect.centerX() : Game.camera.getRect(rect).centerX(), fixed ? rect.centerY() : Game.camera.getRect(rect).centerY());
-        canvas.drawBitmap(texture, null, fixed ? rect : Game.camera.getRect(rect), null);
+        canvas.rotate((float)Math.toDegrees(Math.PI - rotation), fixed ? rect.centerX() : rotateFromPoint ? rotateX - Room.camera.getX() + Game.width / 2 : Room.camera.getRect(rect).centerX(), fixed ? rect.centerY() : rotateFromPoint ? rotateY - Room.camera.getY() + Game.height / 2 : Room.camera.getRect(rect).centerY());
+        canvas.drawBitmap(texture, null, fixed ? rect : Room.camera.getRect(rect), null);
         canvas.restore();
         if(cycling) { setTexture((curTexture + 1) % textures.size()); }
     }
 
+    void draw(RectF rect, Canvas canvas, float rotateX, float rotateY) {
+        draw(rect, canvas, false, true, rotateX, rotateY);
+    }
+
+    void draw(RectF rect, Canvas canvas, boolean fixed) {
+        draw(rect, canvas, fixed, false, 0, 0);
+    }
+
     void draw(RectF rect, Canvas canvas) {
-        draw(rect, canvas, false);
+        draw(rect, canvas, false, false, 0, 0);
     }
 
     static Bitmap loadTexture(int file) {

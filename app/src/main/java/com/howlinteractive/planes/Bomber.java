@@ -5,15 +5,18 @@ package com.howlinteractive.planes;
  */
 public class Bomber extends Enemy {
 
-    int payloads = 5;
+    int payloads = 1;
     float range = 300;
     int cooldown = 0;
     final int FIRE_RATE = 50;
 
-    Bomber(float x, float y) {
+    boolean fromBottom;
+
+    Bomber(float x, float y, boolean fromBottom) {
         super(x, y);
         targetDir = (float)Math.atan2(Room.s.y - y, Room.s.x - x);
         setDir(targetDir, true);
+        this.fromBottom = fromBottom;
     }
 
     @Override
@@ -30,7 +33,7 @@ public class Bomber extends Enemy {
             }
         }
         else {
-            targetDir = (float)Math.PI / 2f;
+            targetDir = (float)Math.PI / 2f * (fromBottom ? -1 : 1);
         }
         super.update();
     }

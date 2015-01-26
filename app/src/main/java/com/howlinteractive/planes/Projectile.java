@@ -3,16 +3,20 @@ package com.howlinteractive.planes;
 import android.util.Log;
 
 public abstract class Projectile extends Object {
+
     @Override
     Type type() { return Type.FRIENDLY; }
 
-    int SPEED = 100;
+    static int SPEED = 100;
 
-    Projectile(float x, float y, float angle) {
-        super(x, y, new Sprite(R.drawable.bullet));
-        speed = SPEED;
+    Projectile(float x, float y, float angle, float speed) {
+        super(x, y, speed, new Sprite(R.drawable.bullet));
         setVel(angle, true);
         targetDir = angle;
+    }
+
+    Projectile(float x, float y, float angle) {
+        this(x, y, angle, SPEED);
     }
 
     @Override

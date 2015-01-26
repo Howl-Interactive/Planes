@@ -3,11 +3,14 @@ package com.howlinteractive.planes;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Room {
+
+    static Camera camera;
 
     static float playerStartX = Game.width / 2, playerStartY = 0, shipStartX = Game.width / 2, shipStartY = playerStartY - Game.height / 4;
     static Player p;
@@ -17,22 +20,15 @@ public class Room {
 
     float scrollX, scrollY;
 
-    private int waveTime = 50, waveCounter = waveTime;
+    private int waveTime = 500, waveCounter;
+    boolean fromBottom;
 
     Paint black = new Paint();
 
     Room(float scrollX, float scrollY) {
         this.scrollX = scrollX;
         this.scrollY = scrollY;
-        objs = new ArrayList<>();
-        if(p == null) { p = new Player(playerStartX, playerStartY); }
-        objs.add(p);
-        s = new Ship(shipStartX, shipStartY);
-        objs.add(s);
-        objs.add(new Background(Game.height * 3 / 2));
-        objs.add(new Background(Game.height / 2));
-        objs.add(new Background(-Game.height / 2));
-        black.setColor(Color.BLACK);
+        initialize();
     }
 
     Room() {
@@ -40,16 +36,22 @@ public class Room {
     }
 
     void reset() {
+        initialize();
+    }
+
+    void initialize() {
         objs = new ArrayList<>();
-        p.x = playerStartX;
-        p.y = playerStartY;
-        p.setDir(0, true);
+        p = new Player(playerStartX, playerStartY);
         objs.add(p);
         s = new Ship(shipStartX, shipStartY);
         objs.add(s);
         objs.add(new Background(Game.height * 3 / 2));
         objs.add(new Background(Game.height / 2));
         objs.add(new Background(-Game.height / 2));
+        camera = new Camera(Room.p, false, true, Game.width / 2, 0);
+        waveCounter = waveTime;
+        fromBottom = false;
+        black.setColor(Color.BLACK);
     }
 
     void update() {
@@ -63,10 +65,18 @@ public class Room {
         for(int i = objs.size() - 1; i >= 0; i--) {
             if(objs.get(i).isAlive) { objs.get(i).update(); }
         }
-        for(int i = objs.size() - 1; i >= 0; i--) {
-            if(!objs.get(i).isAlive) { objs.remove(i); }
+        for (int i = objs.size() - 1; i >= 0; i--) {
+            if (!objs.get(i).isAlive) {
+                if (objs.get(i).type() == Object.Type.ENEMY) {
+                    Achievements.increment("kills");
+                }
+                objs.remove(i);
+            }
         }
         scroll();
+        if(!objs.contains(p)) {
+            Game.gameOver();
+        }
     }
 
     void scroll() {
@@ -88,16 +98,16 @@ public class Room {
         for(Object obj : objs) {
             obj.draw(canvas);
         }
-        canvas.drawRect(0, p.boundY1 - 10 - Game.camera.getY() + Game.height / 2, Game.width, p.boundY1 - Game.camera.getY() + Game.height / 2, black);
-        canvas.drawRect(0, p.boundY2 - Game.camera.getY() + Game.height / 2, Game.width, p.boundY2 + 10 - Game.camera.getY() + Game.height / 2, black);
+        canvas.drawRect(0, p.boundY1 - 10 - camera.getY() + Game.height / 2, Game.width, p.boundY1 - camera.getY() + Game.height / 2, black);
+        canvas.drawRect(0, p.boundY2 - camera.getY() + Game.height / 2, Game.width, p.boundY2 + 10 - camera.getY() + Game.height / 2, black);
     }
 
-    boolean fromBottom = false;
     void createObjects() {
         ArrayList<Object> section = LevelCreator.loadSection(fromBottom);
         for(Object obj : section) {
             objs.add(obj);
         }
+        objs.add(new WaveMarker(!fromBottom));
         fromBottom = !fromBottom;
     }
 

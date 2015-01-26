@@ -26,7 +26,7 @@ public class LevelCreator {
     ;
 
     static String[] sections = {
-        "340000043" +
+        "340040043" +
         "000000000" +
         "000000000" +
         "000000000" +
@@ -48,13 +48,13 @@ public class LevelCreator {
             for(int col = 0; col < COLS; col++) {
                 switch(Integer.parseInt("" + section.charAt(row * COLS + col))) {
                     case WALL:
-                        objs.add(new Wall(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE));
+                        objs.add(new Wall(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Room.camera.getY() - Game.height / 2 + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE));
                         break;
                     case FIGHTER:
-                        objs.add(new Fighter(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2));
+                        objs.add(new Fighter(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Room.camera.getY() - Game.height / 2 + TILE_SIZE / 2));
                         break;
                     case BOMBER:
-                        objs.add(new Bomber(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Game.camera.getY() - Game.height / 2 + TILE_SIZE / 2));
+                        objs.add(new Bomber(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + (fromBottom ? Game.height : -HEIGHT) + Room.camera.getY() - Game.height / 2 + TILE_SIZE / 2, fromBottom));
                         break;
                 }
             }

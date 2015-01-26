@@ -7,29 +7,28 @@ public class Player extends Object {
 
     static float playerSpeed = 10;
 
+    Weapon weapon;
+
     Player(float x, float y) {
         super(x, y, playerSpeed, new Sprite(new int[]{ R.drawable.plane01_s, R.drawable.plane01_l, R.drawable.plane01_r }, false, 1));
         boundX1 = 0;
         boundX2 = Game.width;
         boundY1 += Game.height / 2;
         boundY2 -= Game.height / 2;
+        targetDir = -(float)Math.PI / 2f;
         velY = -speed;
+        setDir(targetDir, true);
+        weapon = new Weapon(Game.loadInt("weapon", 0));
     }
 
     @Override
     void update() {
-        if(cooldown != 0) { cooldown--; }
         super.update();
         shoot(getDir());
     }
 
-    int cooldown = 0;
-    final int FIRE_RATE = 5;
     void shoot(float angle) {
-        if(cooldown == 0) {
-            Game.room.objs.add(new Bullet(x, y, angle));
-            cooldown = FIRE_RATE;
-        }
+        weapon.shoot(x, y, angle);
     }
 
     @Override
@@ -50,7 +49,7 @@ public class Player extends Object {
 
     @Override
     void takeDamage() {
-        Game.gameOver();
+
     }
 
     @Override
@@ -58,7 +57,7 @@ public class Player extends Object {
         super.collision(obj);
         switch(obj.type()) {
             case ENEMY:
-                Game.gameOver();
+                takeDamage();
                 break;
             default:
                 break;

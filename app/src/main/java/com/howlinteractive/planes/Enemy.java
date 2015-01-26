@@ -23,6 +23,11 @@ public abstract class Enemy extends Object {
                     obj.takeDamage();
                 }
                 break;
+            case FRIENDLY_INDESTRUCTIBLE:
+                if(obj.isAlive) {
+                    takeDamage();
+                }
+                break;
             case PLAYER:
                 Room.p.takeDamage();
                 break;

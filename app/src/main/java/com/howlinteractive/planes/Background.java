@@ -23,11 +23,11 @@ public class Background extends Object {
 
     @Override
     void update() {
-        if(y >= Game.height * 3 / 2 + Game.camera.getY() - Game.height / 2) {
+        if(y >= Game.height * 3 / 2 + Room.camera.getY() - Game.height / 2) {
             y -= Game.height * 2;
             sprite.setTexture(Game.rand.nextInt(backgroundFiles.length));
         }
-        else if(y <= -Game.height / 2 + Game.camera.getY() - Game.height / 2) {
+        else if(y <= -Game.height / 2 + Room.camera.getY() - Game.height / 2) {
             y += Game.height * 2;
             sprite.setTexture(Game.rand.nextInt(backgroundFiles.length));
         }

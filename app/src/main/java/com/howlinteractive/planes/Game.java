@@ -3,13 +3,10 @@ package com.howlinteractive.planes;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,13 +21,13 @@ public class Game extends SurfaceView {
     private GameLoopThread gameLoopThread;
 
     private static Context context;
-    private static MainActivity mainActivity;
+    private static GameActivity mainActivity;
 
     public Game(Context context) {
         super(context);
     }
 
-    public Game(Context context, final Activity main, MainActivity mainActivity) {
+    public Game(Context context, final Activity main, GameActivity mainActivity) {
         super(context);
         this.context = context;
         this.mainActivity = mainActivity;
@@ -69,8 +66,6 @@ public class Game extends SurfaceView {
 
     static int width, height;
 
-    static Camera camera;
-
     static boolean inputPanelEnabled = true;
 
     static ArrayList<Room> rooms;
@@ -85,10 +80,10 @@ public class Game extends SurfaceView {
     }
 
     void initialize() {
+        save("weapon", 3);
         rooms = new ArrayList<>();
         rooms.add(new Room(0, 0));
         changeRoom(0);
-        camera = new Camera(Room.p, false, true, width / 2, 0);
         events = new ArrayList<>();
         InputPanel.create();
     }
@@ -126,10 +121,17 @@ public class Game extends SurfaceView {
     }
 
     static void gameOver() {
+        Achievements.save();
         room.reset();
     }
 
     static Bitmap loadBitmap(int file) {
         return mainActivity.loadBitmap(file);
     }
+
+    static int loadInt(String key, int def) { return mainActivity.loadInt(key, def); }
+    static int loadInt(String key) { return mainActivity.loadInt(key, -1); }
+    static String loadString(String key, String def) { return mainActivity.loadString(key, def); }
+    static String loadString(String key) { return mainActivity.loadString(key, "null"); }
+    static void save(String key, int value) { mainActivity.save(key, value); }
 }

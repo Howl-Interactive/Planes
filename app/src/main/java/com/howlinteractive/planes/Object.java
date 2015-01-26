@@ -8,13 +8,15 @@ import java.util.ArrayList;
 
 public abstract class Object implements Comparable<Object> {
 
-    enum Type { NONE, SOLID, PLAYER, ENEMY, SHIP, BOMB, FRIENDLY }
+    enum Type { NONE, SOLID, PLAYER, ENEMY, SHIP, BOMB, FRIENDLY_INDESTRUCTIBLE, FRIENDLY }
     abstract Type type();
+    enum CollisionType { RECTANGLE, LINE }
+    CollisionType collisionType = CollisionType.RECTANGLE;
 
     Sprite sprite;
-    float x, y, velX, velY, accX, accY;
+    float x, y, x2, y2, velX, velY, accX, accY;
     int w, h;
-    private RectF rect;
+    protected RectF rect;
     RectF getRect() {
         if(rect == null) {
             rect = new RectF(x - w / 2, y - h / 2, x + w / 2, y + h / 2);
@@ -66,8 +68,11 @@ public abstract class Object implements Comparable<Object> {
     }
 
     void accelerate() {
-        velX += accX;
-        velY += accY;
+        float angle = getDir();
+        float rotatedAccX = (float)(accX * Math.cos(angle) - accY * Math.sin(angle));
+        float rotatedAccY = (float)(accX * Math.sin(angle) + accY * Math.cos(angle));
+        velX += rotatedAccX;
+        velY += rotatedAccY;
     }
 
     void move() {
@@ -133,10 +138,20 @@ public abstract class Object implements Comparable<Object> {
     }
 
     boolean isColliding(Object obj) {
-        return  x - w / 2 < obj.x + w / 2 &&
-                x + w / 2 > obj.x - w / 2 &&
-                y - h / 2 < obj.y + h / 2 &&
-                y + h / 2 > obj.y - h / 2;
+        if(collisionType == CollisionType.RECTANGLE && obj.collisionType == CollisionType.RECTANGLE) {
+            return x - w / 2 < obj.x + w / 2 &&
+                    x + w / 2 > obj.x - w / 2 &&
+                    y - h / 2 < obj.y + h / 2 &&
+                    y + h / 2 > obj.y - h / 2;
+        }
+        else {
+            if(collisionType == CollisionType.LINE) {
+                return collisionLine(x, y, x2, y2, obj);
+            }
+            else {
+                return collisionLine(obj.x, obj.y, obj.x2, obj.y2, this);
+            }
+        }
     }
 
     ArrayList<Object> getCollisions() {
@@ -231,13 +246,16 @@ public abstract class Object implements Comparable<Object> {
         else {
             float ua = (((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3))) / denom;
             float ub = (((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3))) / denom;
-            return ua < 0 || ua > 1 || ub < 0 || ub > 1;
+            return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1;
         }
     }
 
     static boolean collisionLine(float x1, float y1, float x2, float y2, Object obj) {
         for(int i = 0; i < 4; i++) {
-            if(collisionLine(x1, y1, x2, y2, obj.x + (i % 2 == 0 ? -1 : 1) * obj.w / 2, obj.y + (i < 2 ? -1 : 1), obj.x + (i + 1 % 2 == 0 ? -1 : 1) * obj.w / 2, obj.y + (i + 1 < 2 ? -1 : 1))) {
+            if(collisionLine(x1, y1, x2, y2, obj.x + (i % 2 == 0 ? -1 : 1) * obj.w / 2, obj.y + (i < 2 ? -1 : 1) * obj.h / 2, obj.x + (i + 1 % 2 == 0 ? -1 : 1) * obj.w / 2, obj.y + (i + 1 < 2 ? -1 : 1) * obj.h / 2)) {
+                if(obj.type() == Type.ENEMY) {
+                    return true;
+                }
                 return true;
             }
         }
@@ -252,6 +270,13 @@ public abstract class Object implements Comparable<Object> {
         }
         return null;
     }
+
+    /*static boolean collisionLineRect(RectF rect, Object obj) {
+        return collisionLine(rect.left, rect.top, rect.right, rect.top, obj) ||
+                collisionLine(rect.right, rect.top, rect.right, rect.bottom, obj) ||
+                collisionLine(rect.left, rect.bottom, rect.right, rect.bottom, obj) ||
+                collisionLine(rect.left, rect.top, rect.left, rect.bottom, obj);
+    }*/
 
     void negateScroll() {
         if(Game.room.scrollX != 0) {

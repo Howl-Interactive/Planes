@@ -9,8 +9,8 @@ public class InputPanel {
 
     enum INPUT_TYPE { MOVE, SHOOT }
 
-    private static float lx = 200, ly = Game.height - 200;
-    private static int ls = 200, range = 350;
+    private static float lx = Game.width / 2, ly = Game.height - 200;
+    private static int ls = 300, range = 450;
 
     private static ControlStick leftStick, rightStick;
 
