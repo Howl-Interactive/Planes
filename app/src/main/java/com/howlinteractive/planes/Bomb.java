@@ -1,8 +1,5 @@
 package com.howlinteractive.planes;
 
-/**
- * Created by jacobmacdonald on 1/23/15.
- */
 public class Bomb extends Projectile {
 
     @Override

@@ -1,8 +1,5 @@
 package com.howlinteractive.planes;
 
-/**
- * Created by jacobmacdonald on 1/23/15.
- */
 public class Bomber extends Enemy {
 
     int payloads = 1;
@@ -13,7 +10,7 @@ public class Bomber extends Enemy {
     boolean fromBottom;
 
     Bomber(float x, float y, boolean fromBottom) {
-        super(x, y);
+        super(x, y, new Sprite(new int[] { R.drawable.plane03_s, R.drawable.plane03_l, R.drawable.plane03_r }, false, false, 1));
         targetDir = (float)Math.atan2(Room.s.y - y, Room.s.x - x);
         setDir(targetDir, true);
         this.fromBottom = fromBottom;
@@ -36,23 +33,5 @@ public class Bomber extends Enemy {
             targetDir = (float)Math.PI / 2f * (fromBottom ? -1 : 1);
         }
         super.update();
-    }
-
-    @Override
-    void collision(Object obj) {
-        super.collision(obj);
-        switch(obj.type()) {
-            case FRIENDLY:
-                if(obj.isAlive) {
-                    takeDamage();
-                    obj.takeDamage();
-                }
-                break;
-            case PLAYER:
-                Room.p.takeDamage();
-                break;
-            default:
-                break;
-        }
     }
 }

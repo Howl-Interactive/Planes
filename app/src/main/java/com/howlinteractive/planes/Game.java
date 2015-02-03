@@ -6,7 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.preference.PreferenceManager;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -21,23 +21,23 @@ public class Game extends SurfaceView {
     private GameLoopThread gameLoopThread;
 
     private static Context context;
-    private static GameActivity mainActivity;
+    private static MainActivity mainActivity;
 
     public Game(Context context) {
         super(context);
     }
 
-    public Game(Context context, final Activity main, GameActivity mainActivity) {
+    public Game(Context context, final Activity game, MainActivity mainActivity) {
         super(context);
-        this.context = context;
-        this.mainActivity = mainActivity;
+        Game.context = context;
+        Game.mainActivity = mainActivity;
         gameLoopThread = new GameLoopThread(this);
         holder = getHolder();
         holder.addCallback(new SurfaceHolder.Callback() {
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-                main.finish();
+                game.finish();
                 boolean retry = true;
                 gameLoopThread.running = false;
                 while (retry) {
@@ -58,7 +58,6 @@ public class Game extends SurfaceView {
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) { }
         });
 
-        //Level.create();
         initialize();
     }
 
@@ -79,8 +78,19 @@ public class Game extends SurfaceView {
         Room.p.y = Room.playerStartY;
     }
 
+    static MainMenu mainMenu;
+    static AchievementsMenu achievementsMenu;
+
+    private static ArrayList<float[]> events;
+
+    static Paint textPaint;
+
     void initialize() {
-        save("weapon", 3);
+        mainMenu = new MainMenu();
+        achievementsMenu = new AchievementsMenu();
+        textPaint = new Paint();
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(50);
         rooms = new ArrayList<>();
         rooms.add(new Room(0, 0));
         changeRoom(0);
@@ -90,22 +100,61 @@ public class Game extends SurfaceView {
 
     static void update() {
         handleInput();
-        room.update();
+        switch(GameState.getState()) {
+            case GameState.MAIN_MENU:
+                mainMenu.update();
+                break;
+            case GameState.ACHIEVEMENTS_MENU:
+                achievementsMenu.update();
+                break;
+            case GameState.GAME:
+                room.update();
+                break;
+        }
     }
 
-    private static ArrayList<float[]> events;
     static void handleInput() {
-        for(int i = 0; i < events.size(); i++) {
-            if(!inputPanelEnabled) { room.onTouch(events.get(i)); }
-            else { InputPanel.onTouch(events.get(i)); }
+        switch(GameState.getState()) {
+            case GameState.MAIN_MENU:
+                for(int i = 0; i < events.size(); i++) {
+                    mainMenu.onTouch(events.get(i));
+                }
+                break;
+            case GameState.ACHIEVEMENTS_MENU:
+                for(int i = 0; i < events.size(); i++) {
+                    achievementsMenu.onTouch(events.get(i));
+                }
+                break;
+            case GameState.GAME:
+                for(int i = 0; i < events.size(); i++) {
+                    if(!inputPanelEnabled) { room.onTouch(events.get(i)); }
+                    else { InputPanel.onTouch(events.get(i)); }
+                }
+                break;
         }
+    }
+
+    static void clearTouchEvents() {
+        events.clear();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawColor(Color.BLACK);
-        room.draw(canvas);
-        if(inputPanelEnabled) { InputPanel.draw(canvas); }
+        canvas.drawColor(Color.BLUE);
+        switch(GameState.getState()) {
+            case GameState.MAIN_MENU:
+                mainMenu.draw(canvas);
+                break;
+            case GameState.ACHIEVEMENTS_MENU:
+                achievementsMenu.draw(canvas);
+                break;
+            case GameState.GAME:
+                room.draw(canvas);
+                if (inputPanelEnabled) {
+                    InputPanel.draw(canvas);
+                }
+                break;
+        }
     }
 
     @Override
@@ -121,7 +170,6 @@ public class Game extends SurfaceView {
     }
 
     static void gameOver() {
-        Achievements.save();
         room.reset();
     }
 
@@ -131,7 +179,5 @@ public class Game extends SurfaceView {
 
     static int loadInt(String key, int def) { return mainActivity.loadInt(key, def); }
     static int loadInt(String key) { return mainActivity.loadInt(key, -1); }
-    static String loadString(String key, String def) { return mainActivity.loadString(key, def); }
-    static String loadString(String key) { return mainActivity.loadString(key, "null"); }
     static void save(String key, int value) { mainActivity.save(key, value); }
 }

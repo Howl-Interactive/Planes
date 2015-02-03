@@ -2,9 +2,6 @@ package com.howlinteractive.planes;
 
 import android.graphics.Canvas;
 
-/**
- * Created by jacobmacdonald on 1/24/15.
- */
 public class WaveMarker extends Object {
 
     int counter = 0, blinkTime = 20, timeAlive = 200;
@@ -13,7 +10,7 @@ public class WaveMarker extends Object {
     Type type() { return Type.NONE; }
 
     WaveMarker(boolean top) {
-        super(Game.width / 2, top ? 50 : Game.height - 50, new Sprite(R.drawable.plane01_s));
+        super(Game.width / 2, top ? 50 : Game.height - 50, new Sprite(R.drawable.plane01_s, 3));
         setRotation((float)Math.PI / 2f * (top ? 1 : -1));
     }
 

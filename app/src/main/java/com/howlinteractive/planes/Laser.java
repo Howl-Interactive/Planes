@@ -3,9 +3,6 @@ package com.howlinteractive.planes;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 
-/**
- * Created by jacobmacdonald on 1/26/15.
- */
 public class Laser extends Projectile {
 
     @Override

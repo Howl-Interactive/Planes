@@ -1,15 +1,16 @@
 package com.howlinteractive.planes;
 
-/**
- * Created by jacobmacdonald on 1/25/15.
- */
 public class Missile extends Projectile {
 
     static float SPEED = 1, ACCELERATION = 1.8f;
 
-    Missile(float x, float y, float angle) {
-        super(x, y, angle, SPEED);
+    Missile(float x, float y, float angle, float speed) {
+        super(x, y, angle, speed);
         accX = ACCELERATION;
+    }
+
+    Missile(float x, float y, float angle) {
+        this(x, y, angle, SPEED);
     }
 
     @Override

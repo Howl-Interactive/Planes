@@ -4,9 +4,6 @@ import android.content.SharedPreferences;
 
 import java.util.HashMap;
 
-/**
- * Created by jacobmacdonald on 1/24/15.
- */
 public final class Achievements {
 
     private static class Counter {
@@ -26,43 +23,83 @@ public final class Achievements {
 
     private static SharedPreferences sharedPreferences;
 
-    private static HashMap<String, Counter> achievements;
+    private static HashMap<String, Counter> counters;
+    private static HashMap<String, Integer> levels;
+    private static HashMap<String, int[]> targets;
 
     static void load(SharedPreferences sharedPreferences) {
         Achievements.sharedPreferences = sharedPreferences;
-        achievements = new HashMap<>();
-        achievements.put("kills", new Counter(sharedPreferences.getInt("kills", 0)));
+        loadCounters();
+        loadTargets();
+        loadAchievements();
+    }
+
+    private static void loadCounters() {
+        counters = new HashMap<>();
+        counters.put("kills", new Counter(sharedPreferences.getInt("kills", 0)));
+    }
+
+    private static void loadTargets() {
+        targets = new HashMap<>();
+        targets.put("kills", new int[] { 5000, 5001, 54002 });
+    }
+
+    private static void loadAchievements() {
+        levels = new HashMap<>();
+        levels.put("kills", getNextTargetIndex("kills"));
     }
 
     static void save() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        for(HashMap.Entry<String, Counter> entry : achievements.entrySet()) {
+        for(HashMap.Entry<String, Counter> entry : counters.entrySet()) {
             editor.putInt(entry.getKey(), entry.getValue().get());
         }
-        editor.commit();
+        editor.apply();
     }
 
     static int set(String key, int amount) {
-        return achievements.get(key).set(amount);
+        return counters.get(key).set(amount);
     }
     static int modify(String key, int amount) {
-        return achievements.get(key).modify(amount);
+        return counters.get(key).modify(amount);
     }
     static int increment(String key) {
-        return achievements.get(key).increment();
+        return counters.get(key).increment();
     }
     static int decrement(String key) {
-        return achievements.get(key).decrement();
+        return counters.get(key).decrement();
     }
 
     static HashMap<String, Integer> get() {
-        HashMap<String, Integer> ach = new HashMap<>();
-        for(HashMap.Entry<String, Counter> entry : achievements.entrySet()) {
-            ach.put(entry.getKey(), entry.getValue().get());
+        HashMap<String, Integer> achievements = new HashMap<>();
+        for(HashMap.Entry<String, Counter> entry : counters.entrySet()) {
+            achievements.put(entry.getKey(), entry.getValue().get());
         }
-        return ach;
+        return achievements;
     }
     static int get(String key) {
-        return achievements.get(key).get();
+        return counters.get(key).get();
+    }
+    static int getLevel(String key) { return levels.get(key); }
+
+    static int getNextTargetIndex(String key) {
+        float num = get(key);
+        int[] achievements = targets.get(key);
+        for(int i = 0; i < achievements.length; i++) {
+            if(num < achievements[i]) {
+                return i;
+            }
+        }
+        return achievements.length;
+    }
+
+    static float getNextTarget(String key) {
+        int[] achievements = targets.get(key);
+        int index = getNextTargetIndex(key), numAchievements = achievements.length;
+        return index == numAchievements ? achievements[numAchievements - 1] : achievements[index];
+    }
+
+    static float getPercent(String key) {
+        return get(key) / getNextTarget(key);
     }
 }

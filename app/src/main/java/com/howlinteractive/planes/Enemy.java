@@ -7,10 +7,18 @@ public abstract class Enemy extends Object {
 
     static final float SPEED = 5, TURN_SPEED = .03f;
 
-    Enemy(float x, float y) {
-        super(x, y, SPEED, new Sprite(new int[]{ R.drawable.plane01_s, R.drawable.plane01_l, R.drawable.plane01_r }, false, 1));
+    Enemy(float x, float y, Sprite sprite) {
+        super(x, y, SPEED, sprite);
         velY = speed;
         turnSpeed = TURN_SPEED;
+    }
+
+    @Override
+    void takeDamage() {
+        super.takeDamage();
+        if(Game.rand.nextInt(4) == 0) {
+            Game.room.objs.add(new Upgrade(x, y, Game.rand.nextInt(5)));
+        }
     }
 
     @Override
@@ -29,7 +37,12 @@ public abstract class Enemy extends Object {
                 }
                 break;
             case PLAYER:
-                Room.p.takeDamage();
+                if(isAlive) {
+                    takeDamage();
+                }
+                if(!(Room.p.special instanceof CollisionBarrier)) {
+                    Room.p.takeDamage();
+                }
                 break;
             default:
                 break;

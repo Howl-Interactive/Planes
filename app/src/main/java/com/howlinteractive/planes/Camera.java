@@ -1,11 +1,7 @@
 package com.howlinteractive.planes;
 
 import android.graphics.RectF;
-import android.util.Log;
 
-/**
- * Created by jacobmacdonald on 1/18/15.
- */
 public class Camera {
 
     Object obj;
@@ -35,12 +31,11 @@ public class Camera {
     }
 
     RectF getRect(RectF original) {
-        RectF newRect = new RectF(
+        return new RectF(
             original.left - getX() + Game.width / 2,
             original.top - getY() + Game.height / 2,
             original.right - getX() + Game.width / 2,
             original.bottom - getY() + Game.height / 2
         );
-        return newRect;
     }
 }

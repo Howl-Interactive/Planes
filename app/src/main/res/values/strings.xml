@@ -9,5 +9,12 @@
     <string name="view_achievements">View Achievements</string>
     <string name="title_activity_achievements">AchievementsActivity</string>
     <string name="back_to_main">Back</string>
+    <string name="machine_gun">Machine Gun</string>
+    <string name="missile_launcher">Missile Launcher</string>
+    <string name="shotgun">Shotgun</string>
+    <string name="laser">Laser</string>
+    <string name="shield">Shield</string>
+    <string name="homing_missiles">Homing Missiles</string>
+    <string name="collision">Collision</string>
 
 </resources>

@@ -2,15 +2,14 @@ package com.howlinteractive.planes;
 
 import android.graphics.Canvas;
 import android.graphics.RectF;
-import android.util.Log;
 
 import java.util.ArrayList;
 
 public abstract class Object implements Comparable<Object> {
 
-    enum Type { NONE, SOLID, PLAYER, ENEMY, SHIP, BOMB, FRIENDLY_INDESTRUCTIBLE, FRIENDLY }
+    enum Type { NONE, SOLID, PLAYER, ENEMY, SHIP, BOMB, FRIENDLY_INDESTRUCTIBLE, UPGRADE, FRIENDLY }
     abstract Type type();
-    enum CollisionType { RECTANGLE, LINE }
+    enum CollisionType { RECTANGLE, LINE, CIRCLE }
     CollisionType collisionType = CollisionType.RECTANGLE;
 
     Sprite sprite;
@@ -107,7 +106,7 @@ public abstract class Object implements Comparable<Object> {
             }
             setDir(currentAngle + change, true);
         }
-        if(sprite.numTextures() >= 3) {
+        if(this instanceof Player || this instanceof Enemy) {
             int imageIndex = (change == 0 ? 0 : change < 0 ? 1 : 2);
             if (imageIndex == 0) {
                 if (imageResetCounter == 0) {
@@ -138,19 +137,27 @@ public abstract class Object implements Comparable<Object> {
     }
 
     boolean isColliding(Object obj) {
-        if(collisionType == CollisionType.RECTANGLE && obj.collisionType == CollisionType.RECTANGLE) {
-            return x - w / 2 < obj.x + w / 2 &&
-                    x + w / 2 > obj.x - w / 2 &&
-                    y - h / 2 < obj.y + h / 2 &&
-                    y + h / 2 > obj.y - h / 2;
-        }
-        else {
+        if(collisionType != CollisionType.RECTANGLE || obj.collisionType != CollisionType.RECTANGLE) {
             if(collisionType == CollisionType.LINE) {
-                return collisionLine(x, y, x2, y2, obj);
+                if(obj.collisionType == CollisionType.LINE) {
+                    return collisionLine(x, y, x2, y2, obj.x, obj.y, obj.x2, obj.y2);
+                }
+                else {
+                    return collisionLine(x, y, x2, y2, obj);
+                }
             }
-            else {
+            else if(obj.collisionType == CollisionType.LINE) {
                 return collisionLine(obj.x, obj.y, obj.x2, obj.y2, this);
             }
+            else {
+                return collisionCircle(x, y, w / 2, obj.x, obj.y, obj.w / 2);
+            }
+        }
+        else {
+            return x - w / 2 < obj.x + w / 2 &&
+                x + w / 2 > obj.x - w / 2 &&
+                y - h / 2 < obj.y + h / 2 &&
+                y + h / 2 > obj.y - h / 2;
         }
     }
 
@@ -198,6 +205,10 @@ public abstract class Object implements Comparable<Object> {
 
     float getDir() {
         return (float)Math.atan2(velY, velX);
+    }
+
+    float getDir(Object obj) {
+        return obj == null ? getDir() : (float)Math.atan2(obj.y - y, obj.x - x);
     }
 
     void setDir(float angle, boolean adjustRotation) {
@@ -271,12 +282,21 @@ public abstract class Object implements Comparable<Object> {
         return null;
     }
 
-    /*static boolean collisionLineRect(RectF rect, Object obj) {
-        return collisionLine(rect.left, rect.top, rect.right, rect.top, obj) ||
-                collisionLine(rect.right, rect.top, rect.right, rect.bottom, obj) ||
-                collisionLine(rect.left, rect.bottom, rect.right, rect.bottom, obj) ||
-                collisionLine(rect.left, rect.top, rect.left, rect.bottom, obj);
-    }*/
+    static boolean collisionCircle(float x1, float y1, float r1, float x2, float y2, float r2) {
+        return distance(x1, y1, x2, y2) < r1 + r2;
+    }
+
+    static float distance(float x1, float y1, float x2, float y2) {
+        return (float)Math.sqrt(Math.pow(y1 - y2, 2) + Math.pow(x1 - x2, 2));
+    }
+
+    static float distance(Object obj1, Object obj2) {
+        return (float)Math.sqrt(Math.pow(obj1.y - obj2.y, 2) + Math.pow(obj1.x - obj2.x, 2));
+    }
+
+    float distance(Object obj) {
+        return (float)Math.sqrt(Math.pow(y - obj.y, 2) + Math.pow(x - obj.x, 2));
+    }
 
     void negateScroll() {
         if(Game.room.scrollX != 0) {

@@ -1,11 +1,7 @@
 package com.howlinteractive.planes;
 
 import android.graphics.Canvas;
-import android.util.Log;
 
-/**
- * Created by jacobmacdonald on 1/18/15.
- */
 public class Background extends Object {
 
     @Override
@@ -18,7 +14,7 @@ public class Background extends Object {
     };
 
     Background(int y) {
-        super(Game.width / 2, y, Game.width, Game.height, new Sprite(backgroundFiles, false, -1));
+        super(Game.width / 2, y, Game.width, Game.height, new Sprite(backgroundFiles, false, false, -5));
     }
 
     @Override
@@ -35,7 +31,7 @@ public class Background extends Object {
 
     @Override
     void draw(Canvas canvas) {
-        sprite.draw(getRect(), canvas, Game.room.scrollX == 0 && Game.room.scrollY == 0 ? false : true);
+        sprite.draw(getRect(), canvas, !(Game.room.scrollX == 0 && Game.room.scrollY == 0));
     }
 
     @Override

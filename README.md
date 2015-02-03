@@ -2,5 +2,7 @@
 
 TODO:
 Health
-Special attacks
 Ingame upgrades
+Weapon/special select
+Unlocks
+Double collisions

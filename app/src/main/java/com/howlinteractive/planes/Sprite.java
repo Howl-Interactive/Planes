@@ -1,8 +1,9 @@
 package com.howlinteractive.planes;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.RectF;
 
 import java.util.ArrayList;
@@ -28,8 +29,12 @@ public class Sprite {
 
     float depth;
 
-    Sprite(int[] files, boolean cycling, int depth) {
+    boolean stopOnAnimationFinished;
+    boolean animationFinished = false;
+
+    Sprite(int[] files, boolean cycling, boolean stopOnAnimationFinish, int depth) {
         this.cycling = cycling;
+        this.stopOnAnimationFinished = stopOnAnimationFinish;
         this.depth = depth;
         textures = new ArrayList<>();
         for(int file : files) {
@@ -39,19 +44,28 @@ public class Sprite {
     }
 
     Sprite(int file, int depth) {
-        this(new int[] { file }, false, depth);
+        this(new int[] { file }, false, false, depth);
     }
 
     Sprite(int file) {
-        this(new int[] { file }, false, 0);
+        this(new int[] { file }, false, false, 0);
     }
 
     void draw(RectF rect, Canvas canvas, boolean fixed, boolean rotateFromPoint, float rotateX, float rotateY) {
-        canvas.save();
-        canvas.rotate((float)Math.toDegrees(Math.PI - rotation), fixed ? rect.centerX() : rotateFromPoint ? rotateX - Room.camera.getX() + Game.width / 2 : Room.camera.getRect(rect).centerX(), fixed ? rect.centerY() : rotateFromPoint ? rotateY - Room.camera.getY() + Game.height / 2 : Room.camera.getRect(rect).centerY());
-        canvas.drawBitmap(texture, null, fixed ? rect : Room.camera.getRect(rect), null);
-        canvas.restore();
-        if(cycling) { setTexture((curTexture + 1) % textures.size()); }
+        if(!stopOnAnimationFinished || !animationFinished) {
+            canvas.save();
+            canvas.rotate((float) Math.toDegrees(Math.PI - rotation), fixed ? rect.centerX() : rotateFromPoint ? rotateX - Room.camera.getX() + Game.width / 2 : Room.camera.getRect(rect).centerX(), fixed ? rect.centerY() : rotateFromPoint ? rotateY - Room.camera.getY() + Game.height / 2 : Room.camera.getRect(rect).centerY());
+            canvas.drawBitmap(texture, null, fixed ? rect : Room.camera.getRect(rect), null);
+            canvas.restore();
+            if (cycling) {
+                if(stopOnAnimationFinished && curTexture == textures.size() - 1) {
+                    animationFinished = true;
+                }
+                else {
+                    setTexture((curTexture + 1) % textures.size());
+                }
+            }
+        }
     }
 
     void draw(RectF rect, Canvas canvas, float rotateX, float rotateY) {
@@ -66,13 +80,17 @@ public class Sprite {
         draw(rect, canvas, false, false, 0, 0);
     }
 
-    static Bitmap loadTexture(int file) {
+    static Bitmap loadTexture(int file, Activity activity) {
         Bitmap loaded = loadedTextures.get(file);
         if(loaded == null) {
-            Bitmap t = Game.loadBitmap(file);
+            Bitmap t = activity == null ? Game.loadBitmap(file) : BitmapFactory.decodeResource(activity.getResources(), file);
             loadedTextures.put(file, t);
             return t;
         }
         return loaded;
+    }
+
+    static Bitmap loadTexture(int file) {
+        return loadTexture(file, null);
     }
 }

@@ -30,4 +30,79 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:onClick="changeActivity" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/machine_gun"
+        android:id="@+id/machine_gun"
+        android:layout_marginTop="64dp"
+        android:layout_below="@+id/view_achievements"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:onClick="setWeapon" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/missile_launcher"
+        android:id="@+id/missile_launcher"
+        android:layout_alignTop="@+id/machine_gun"
+        android:layout_toRightOf="@+id/machine_gun"
+        android:layout_alignRight="@+id/laser"
+        android:layout_alignEnd="@+id/laser"
+        android:onClick="setWeapon" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/shotgun"
+        android:id="@+id/shotgun"
+        android:layout_below="@+id/machine_gun"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="74dp"
+        android:layout_marginStart="74dp"
+        android:onClick="setWeapon" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/laser"
+        android:id="@+id/laser"
+        android:layout_alignTop="@+id/shotgun"
+        android:layout_toRightOf="@+id/shotgun"
+        android:layout_toEndOf="@+id/shotgun"
+        android:onClick="setWeapon" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/homing_missiles"
+        android:id="@+id/homing_missiles"
+        android:layout_below="@+id/shotgun"
+        android:layout_alignRight="@+id/shotgun"
+        android:layout_alignEnd="@+id/shotgun"
+        android:layout_marginTop="46dp"
+        android:onClick="setSpecial" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/shield"
+        android:id="@+id/shield"
+        android:layout_alignBottom="@+id/homing_missiles"
+        android:layout_alignLeft="@+id/laser"
+        android:layout_alignStart="@+id/laser"
+        android:onClick="setSpecial" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/collision"
+        android:id="@+id/collision"
+        android:layout_alignTop="@+id/shield"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="setSpecial" />
 </RelativeLayout>
